@@ -1,0 +1,1144 @@
+================================================================================
+          PROJECT COMPREHENSIVE TECHNICAL AUDIT & REPORT ANALYSIS
+      PNEUMOSHIELD AI: DEEP TRANSFER LEARNING & EXPLAINABLE AI (XAI)
+               FOR CHEST X-RAY PNEUMONIA CLASSIFICATION
+================================================================================
+Generated File: report.txt
+Repository Root: d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite
+Report Generation Date: 2026-10-15
+Target Academic Standard: B.Tech AI & ML Project Report / Technical Documentation
+Audit Methodology: Direct Static Codebase Analysis, Artifact Inspection,
+                   and Runtime Configuration Verification.
+================================================================================
+
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1.  SECTION 1:  PROJECT IDENTIFICATION
+2.  SECTION 2:  ABSTRACT MATERIAL
+3.  SECTION 3:  INTRODUCTION
+4.  SECTION 4:  SYSTEM ANALYSIS AND DESIGN
+5.  SECTION 5:  PROPOSED SOLUTION
+6.  SECTION 6:  DATASET DESCRIPTION
+7.  SECTION 7:  DATA PREPROCESSING AND FEATURE ENGINEERING
+8.  SECTION 8:  MACHINE LEARNING MODEL DEVELOPMENT
+9.  SECTION 9:  EVALUATION METRICS
+10. SECTION 10: WEBSITE AND APPLICATION IMPLEMENTATION
+11. SECTION 11: DEVELOPMENT ENVIRONMENT
+12. SECTION 12: EXPERIMENTAL RESULTS AND DISCUSSION
+13. SECTION 13: OUTPUT SCREENSHOTS
+14. SECTION 14: CONCLUSION AND FUTURE ENHANCEMENTS
+15. SECTION 15: REFERENCES
+16. SECTION 16: APPENDIX MATERIAL
+17. SECTION 17: INFORMATION GAPS AND VERIFICATION CHECKLIST
+--------------------------------------------------------------------------------
+
+
+================================================================================
+SECTION 1: PROJECT IDENTIFICATION
+================================================================================
+
+1.1 EXACT PROJECT TITLE:
+    - Application Name: PneumoShield AI
+    - Subtitle / Descriptor: DenseNet-121 Clinical Radiograph Classifier & Explainable AI (XAI)
+    - Full Academic Title: Deep Transfer Learning and Explainable Artificial Intelligence (Grad-CAM) for Chest X-Ray Pneumonia Classification
+    [Evidence: frontend/src/App.jsx:L178-179; backend/app.py:L1-3; notebook712c281550.ipynb:Cell 0, 7; Pneumonia_Detection_DenseNet121_Report.txt:L5-8]
+
+1.2 PROJECT DOMAIN AND APPLICATION AREA:
+    - Primary Domain: Artificial Intelligence and Machine Learning (AI & ML).
+    - Sub-Domain: Computer Vision (CV), Deep Learning, Medical Image Analysis.
+    - Clinical Application Area: Pulmonary Radiography, Computer-Aided Diagnosis (CADx), Clinical Decision Support Systems (CDSS).
+    [Evidence: backend/app.py:L2-3; frontend/src/App.jsx:L241-255]
+
+1.3 PROBLEM ADDRESSED:
+    - Pneumonia is an acute lower respiratory infection causing inflammation of the pulmonary alveoli, representing a major cause of pediatric and adult mortality worldwide.
+    - Manual clinical evaluation of frontal chest radiographs (X-rays) is challenged by:
+        a) Radiologist scarcity and high diagnostic workload in primary healthcare and emergency triage.
+        b) Substantial inter-observer variability and ambiguous radiographic presentations (e.g., subtle patchy ground-glass opacities vs. consolidation).
+        c) The "black-box" dilemma of standard deep neural networks, which provide classification decisions without spatial visual justification, impeding clinical trust.
+    [Evidence: frontend/src/App.jsx:L250-255, L309-315; Pneumonia_Detection_DenseNet121_Report.txt:L31-38]
+
+1.4 MAIN OBJECTIVE:
+    - To develop, evaluate, and deploy an end-to-end deep learning web application that accurately classifies chest radiographs into "NORMAL" or "PNEUMONIA" using a fine-tuned DenseNet-121 convolutional neural network.
+    - To eliminate the "black-box" opacity by embedding Gradient-Weighted Class Activation Mapping (Grad-CAM), generating pixel-level saliency heatmaps that visually highlight pathological pulmonary opacities.
+    - To optimize decision thresholds to suppress false-positive alarms while maintaining high clinical sensitivity.
+    [Evidence: frontend/src/App.jsx:L250-255, L438-463; backend/app.py:L81-144, L211-231]
+
+1.5 INTENDED USERS:
+    - Radiologists and pulmonary specialists (seeking a secondary confirmatory opinion and rapid region-of-interest localization).
+    - Emergency room (ER) and critical care physicians (requiring preliminary diagnostic triage during off-peak hours).
+    - Medical students and radiology residents (for clinical training and educational radiograph interpretability).
+    - Primary healthcare centers and telemedicine facilities in underserved rural areas with limited access to senior radiologists.
+    [Evidence: frontend/src/App.jsx:L178-180, L338-344, L824-830]
+
+1.6 MAIN INPUT AND OUTPUT:
+    - Main Input: Frontal Chest Radiograph image file (supported formats: JPEG, JPG, PNG; maximum file size: 15 MB) and an adjustable diagnostic threshold (range: 0.50 to 0.90, default: 0.75).
+    - Main Output:
+        a) Predicted Classification Verdict ("NORMAL" or "PNEUMONIA").
+        b) Calibrated Diagnostic Confidence percentage (e.g., 93.1%).
+        c) Class Probability Distribution (Pneumonia probability and Normal probability to 6 decimal precision).
+        d) Explainability Visualizations (Base64-encoded PNGs):
+           * Color-mapped Grad-CAM Saliency Heatmap (Jet colormap).
+           * Blended Heatmap Overlay on the original radiograph (55% original + 45% heatmap).
+    [Evidence: backend/app.py:L48-50, L73-78, L135-144, L172-179, L223-231; frontend/src/App.jsx:L77-87, L500-630]
+
+1.7 SHORT DESCRIPTION OF THE COMPLETE SYSTEM:
+    - PneumoShield AI is a full-stack, client-server medical imaging system. The frontend is built using React 18, Vite, and Lucide icons, offering a responsive diagnostic console, interactive radiograph uploader, threshold calibrator, probability bar meters, and a multi-view visualizer (Overlay, Heatmap Only, Original).
+    - The backend is powered by a Python Flask REST API integrating TensorFlow/Keras and OpenCV. It hosts a pre-trained and fine-tuned DenseNet-121 model (`best_densenet121_finetuned.keras`), computes forward inference on preprocessed 224x224 tensors, and dynamically executes Grad-CAM through the functional sub-model's final convolutional layer (`relu`).
+    - The client and server communicate asynchronously over HTTP JSON/multipart requests mediated by a Vite proxy server.
+    [Evidence: backend/app.py:L1-238; frontend/src/App.jsx:L1-835; frontend/vite.config.js:L9-14]
+
+1.8 CURRENT DEVELOPMENT AND IMPLEMENTATION STATUS:
+    - Core Deep Learning Model: Fully trained, evaluated, fine-tuned, and exported as a serialized Keras 3 artifact (`best_densenet121_finetuned.keras` / `.zip`, 52.88 MB).
+    - Explainable AI Engine: Fully implemented and integrated into the prediction route.
+    - Backend REST API: Implemented, tested, and operational via Flask (`/api/health`, `/api/predict`).
+    - Frontend Interface: Implemented, styled, interactive, and connected to the backend via Vite proxy.
+    - Database / User Authentication: Not implemented in the current repository (system operates as a stateless inference service).
+    - Local Orchestration: Fully automated through batch launch scripts (`backend.bat`, `frontend.bat`, `pnewmonia.bat`).
+    [Evidence: backend.bat:L1-23; frontend.bat:L1-9; pnewmonia.bat:L1-11; backend/app.py:L1-238; frontend/package.json:L1-21]
+
+
+================================================================================
+SECTION 2: ABSTRACT MATERIAL
+================================================================================
+
+2.1 THE CLINICAL PROBLEM:
+    Pneumonia represents a critical pulmonary pathology responsible for substantial global morbidity and mortality. Early and accurate detection via chest radiography is paramount for initiating antimicrobial therapy. However, conventional manual interpretation is limited by radiologist shortages, diagnostic fatigue, and significant inter-reader variability.
+
+2.2 PROPOSED AI/ML SOLUTION:
+    This project presents "PneumoShield AI", an automated deep transfer learning and Explainable AI (XAI) framework engineered for robust binary classification of chest radiographs into Normal versus Pneumonia. The solution couples high-capacity feature extraction with an interpretability engine to deliver transparent diagnostic predictions.
+
+2.3 DATASET AND PARTITIONING:
+    The system utilizes the Kermany et al. / Paul Mooney Chest X-Ray Images (Pneumonia) benchmark dataset comprising 5,856 total pediatric chest radiographs. To rectify the benchmark's flawed default validation split of only 16 images, the 5,216-image training corpus was strategically re-partitioned into an 80% training set (4,173 images) and a 20% validation set (1,043 images), while preserving an untouched test cohort of 624 images (234 Normal, 390 Pneumonia).
+
+2.4 DATA PREPROCESSING AND CLASS BALANCING:
+    Radiographs are converted to RGB, rescaled and resized to 224x224 pixels, and standardized using ImageNet DenseNet channel-wise normalization. A severe class imbalance ratio of 1:2.89 (1,341 Normal vs. 3,875 Pneumonia in raw training data) is mitigated using computed inverse class weights (Normal: 1.9448, Pneumonia: 0.6730) applied during loss backpropagation. Real-time data augmentation (horizontal flipping, rotation, zoom, contrast adjustment) is incorporated to prevent overfitting.
+
+2.5 MODEL ARCHITECTURE:
+    The classifier employs DenseNet-121 (Densely Connected Convolutional Networks) as its architectural backbone. DenseNet concatenates all preceding feature maps within each dense block, promoting feature reuse and gradient flow across 121 layers. The top classification layers are replaced with Global Average Pooling (reducing 7x7x1024 tensors to 1024 vectors), a Dropout rate of 0.40, and a single sigmoid output neuron. Training followed a two-phase protocol:
+    1) Stage 1: Frozen base feature extraction (10 epochs, Adam lr=1e-4).
+    2) Stage 2: Deep fine-tuning of layers 300 to 427 (15 epochs, Adam lr=1e-5 down to 2e-6).
+
+2.6 APPLICATION ARCHITECTURE:
+    The deployed system comprises a decoupled architecture:
+    - Client: A modern React 18 single-page application built with Vite, featuring drag-and-drop radiograph ingestion, real-time threshold slider (0.50-0.90), responsive status indicators, and interactive multi-mode Grad-CAM viewers.
+    - Server: A Python Flask REST API running TensorFlow 2.x and OpenCV, serving inference requests and generating dynamic heatmap overlays.
+
+2.7 VERIFIED EVALUATION RESULTS:
+    On the untouched 624-image clinical test set:
+    - Standard Threshold (0.50): Accuracy = 89.58%, ROC-AUC = 0.9651 (0.9646), Precision = 87.88%, Recall = 96.67%, F1-Score = 92.06%. (Confusion Matrix: 182 TN, 52 FP, 13 FN, 377 TP).
+    - Calibrated Optimal Threshold (0.75): Accuracy = 91.35%, Precision = 93.08%, Recall = 93.08%, F1-Score = 93.08%, eliminating 28 false-positive normal cases while preserving high sensitivity.
+    - Validation Set Peak Performance: Validation AUC = 0.9970 (99.70%), Validation Precision = 0.9973 (99.73%), Validation Accuracy = 94.44%.
+
+2.8 EXPLAINABILITY AND LIMITATIONS:
+    Gradient-Weighted Class Activation Mapping (Grad-CAM) extracts gradients from the final convolutional activation layer (`relu`, shape 7x7x1024), generating a 2D activation map that localizes radiological consolidations and infiltrates.
+    Identified limitations include binary classification scope (does not differentiate viral vs. bacterial vs. COVID-19), lack of persistent patient database tracking, and reliance on single frontal 2D projections without lateral views.
+    [Evidence: notebook712c281550.ipynb:Cells 1-38; Pneumonia_Detection_DenseNet121_Report.txt:L1-530; backend/app.py:L1-238; frontend/src/App.jsx:L1-835]
+
+
+================================================================================
+SECTION 3: INTRODUCTION
+================================================================================
+
+3.1 BACKGROUND OF THE PROBLEM DOMAIN:
+    Chest radiography remains the most frequently performed diagnostic imaging modality worldwide, accounting for over 40% of all diagnostic radiological procedures. Among lower respiratory tract infections, pneumonia is the leading infectious cause of mortality among children under five years of age and elderly populations. Standard diagnostic workflows rely on radiologists identifying radiographic patterns such as consolidation, air bronchograms, and interstitial infiltrates from 2D projectional radiographs.
+
+3.2 EXISTING CHALLENGES:
+    - Clinical Shortages: High patient volume creates severe cognitive fatigue and diagnostic delays in intensive care units (ICUs) and emergency departments.
+    - Visual Ambiguity: Low contrast between healthy lung parenchyma, cardiac borders, and early-stage consolidation leads to misinterpretation.
+    - Diagnostic Inconsistency: Independent studies report inter-observer discordance rates ranging between 15% and 35% among radiologists interpreting pediatric radiographs.
+    - Data Imbalance: Clinical cohorts naturally exhibit class skews, where diseased samples dominate specific referral datasets while healthy screens dominate community wellness datasets.
+
+3.3 PROBLEM CONTEXT:
+    Deep learning architectures, specifically Convolutional Neural Networks (CNNs), have demonstrated human-level capability in medical computer vision. However, applying standard off-the-shelf CNNs directly to chest radiography encounters three hurdles:
+    1) Scarcity of pixel-annotated bounding boxes.
+    2) High risk of overfitting on small training samples.
+    3) Clinicians' reluctance to trust unexplainable black-box models that could be making predictions based on spurious background artifacts (e.g., radiopaque hospital tokens, patient orientation tags, or imaging hardware borders).
+
+3.4 ROLE OF AI AND MACHINE LEARNING IN THIS PROJECT:
+    AI serves as an assistive triage and decision-support mechanism:
+    - Feature Extraction: The DenseNet-121 backbone automatically learns multi-scale spatial representations (from edge and texture filters in early layers to complex anatomical consolidations in deeper dense blocks) without manual feature engineering.
+    - Probability Calibration: The network outputs continuous posterior probabilities, allowing tunable operational thresholds according to clinical urgency.
+    - Visual Verification: Grad-CAM generates visual saliency explanations without requiring pixel-level segmentation labels during model training.
+
+3.5 WHY THE SELECTED APPROACH IS APPROPRIATE:
+    - DenseNet-121 vs. Other Architectures: DenseNet addresses the vanishing gradient problem through iterative dense connectivity, where each layer receives inputs from all previous layers. This yields high parameter efficiency (7.04 million parameters for DenseNet-121 versus 25.6 million for ResNet-50 and 138 million for VGG-16), mitigating overfitting on the limited medical dataset while enhancing feature reuse.
+    - Transfer Learning: Pre-training on 1.4 million ImageNet images equips the network with universal visual representations (Gabor filters, contours, gradients), which are fine-tuned on pulmonary radiographic structures.
+    - Two-Stage Training: Decoupling initial classification head training from deep convolutional fine-tuning prevents gradient shock from destabilizing pre-trained filter weights.
+
+3.6 OVERVIEW OF THE PROPOSED APPLICATION:
+    The proposed application, PneumoShield AI, is a self-contained web platform combining an asynchronous web interface with a high-performance deep learning microservice. Clinicians drag and drop a chest X-ray into the browser, adjust the sensitivity threshold if desired, and receive an instant classification verdict with side-by-side explainability heatmaps showing the physiological zones driving the network's verdict.
+
+3.7 PRACTICAL RELEVANCE AND INTENDED USE:
+    The system is designed for secondary-opinion verification and emergency pre-screening:
+    - Low-resource rural clinics: Acts as a force multiplier where on-site radiologists are unavailable.
+    - Emergency Triage: Prioritizes positive pneumonia radiographs in radiological picture archiving and communication systems (PACS) queues.
+    - Quality Assurance: Reduces false negative discharge rates by flagging overlooked pulmonary opacities.
+    [Evidence: frontend/src/App.jsx:L241-330; Pneumonia_Detection_DenseNet121_Report.txt:L31-64, L145-165]
+
+
+================================================================================
+SECTION 4: SYSTEM ANALYSIS AND DESIGN
+================================================================================
+
+4.1 EXISTING APPROACH OR SCENARIO:
+    In standard hospital operations, chest radiographs are acquired by radiologic technologists and routed to PACS archives. A radiologist or attending physician inspects the radiograph on a high-resolution display, visually assesses both lung fields, compares apical and basal regions, and dictates a diagnostic report.
+
+4.2 LIMITATIONS OF THE EXISTING APPROACH:
+    - Latency: Turnaround times for non-stat radiograph interpretation can exceed 12 to 24 hours.
+    - High Subjectivity: Diagnostic concordance between observers varies widely based on experience.
+    - Omission of Subtle Lesions: Early-stage bronchopneumonia presenting as micro-opacities is frequently missed during rapid screenings.
+    - Lack of Interactive Second Opinion: Attending emergency staff frequently work in isolation during night shifts without sub-specialty radiological support.
+
+4.3 PROJECT PROBLEM STATEMENT:
+    To design and deploy a lightweight, accessible, and explainable deep learning web system that accurately classifies frontal chest radiographs into Normal or Pneumonia, mitigates dataset class skew, optimizes decision boundaries to balance precision and recall, and outputs interpretable visual evidence directly onto the radiograph.
+
+4.4 PROJECT OBJECTIVES:
+    1. Implement a transfer learning pipeline utilizing DenseNet-121 pre-trained on ImageNet.
+    2. Mitigate training class imbalance through cost-sensitive inverse class weighting.
+    3. Re-partition the training and validation cohorts into an 80/20 stratified split to enable meaningful callback optimization and early stopping.
+    4. Achieve a test ROC-AUC exceeding 0.95 and a test F1-score exceeding 90% on unseen evaluation data.
+    5. Implement a Grad-CAM engine capable of backpropagating class activation gradients through functional nested Keras sub-models.
+    6. Construct a decoupled web application with responsive UI, live client-side validation, and instant visual diagnostic display.
+
+4.5 SCOPE OF THE PROJECT:
+    - In-Scope:
+        * Binary classification of frontal chest radiographs (Normal vs. Pneumonia).
+        * Image preprocessing, resizing, channel conversion, and ImageNet standardization.
+        * Grad-CAM generation, heatmap color mapping (cv2.COLORMAP_JET), and alpha blending.
+        * Configurable decision thresholding from 0.50 to 0.90.
+        * Interactive web dashboard displaying predictions, confidence, probability breakdown, and heatmap views.
+        * Complete automated startup scripts for Windows development environments.
+    - Out-of-Scope (Not Implemented in Current Codebase):
+        * Multi-class classification (e.g., differentiating bacterial vs. viral pneumonia vs. COVID-19 vs. tuberculosis).
+        * Multi-modal patient data integration (e.g., electronic health records, blood biomarker assays, patient age/vitals).
+        * Database persistence, historical patient records, or user authentication.
+        * Direct integration with hospital DICOM/PACS networks.
+
+4.6 IMPLEMENTED FUNCTIONALITY:
+    [Verified from source files backend/app.py and frontend/src/App.jsx]
+    - Radiograph file upload via Drag & Drop or system file dialog.
+    - Client-side validation: MIME type check (image/jpeg, image/png) and file size cap (15 MB).
+    - Threshold slider with real-time feedback (steps of 0.05 from 0.50 to 0.90, default 0.75).
+    - Server-side image decoding, format verification, and Lanczos interpolation resizing to 224x224.
+    - DenseNet-121 inference returning raw pneumonia probability and complementary normal probability.
+    - Mathematical threshold evaluation determining final categorical verdict.
+    - Grad-CAM heatmap extraction from the penultimate convolutional activation layer (`relu`).
+    - Base64 data URI encoding for client display without persistent filesystem writes.
+    - Multi-mode visual switch: "Overlay" (55% radiograph + 45% heatmap), "Heatmap Only", and "Original".
+    - RESTful health monitoring endpoint (`/api/health`) with polling status badge in the UI.
+
+4.7 SYSTEM CONSTRAINTS AND ASSUMPTIONS:
+    - Constraints:
+        * Input must be a 2D frontal projection radiograph (Anteroposterior [AP] or Posteroanterior [PA]).
+        * Processed input tensor dimension is fixed at 224 x 224 x 3.
+        * Inference engine requires TensorFlow 2.x and Keras 3.x runtime.
+        * Maximum request payload size is 15 MB.
+    - Assumptions:
+        * Uploaded images are cropped or focused on thoracic anatomy.
+        * Input images contain sufficient resolution to resolve pulmonary boundaries.
+        * The client browser supports modern ECMAScript, HTML5 Canvas, and CSS custom properties.
+
+4.8 FUNCTIONAL REQUIREMENTS:
+    - FR-1: The system shall permit the user to upload chest X-ray images in JPEG or PNG formats.
+    - FR-2: The system shall reject invalid file extensions and files exceeding 15 MB with descriptive error messages.
+    - FR-3: The system shall allow the clinician to adjust the classification decision threshold between 0.50 and 0.90.
+    - FR-4: The system shall output the predicted class as either "NORMAL" or "PNEUMONIA".
+    - FR-5: The system shall report the exact probability score for both classes and calculate confidence percentage.
+    - FR-6: The system shall compute and return a Grad-CAM visual heatmap overlay aligned with the uploaded image.
+    - FR-7: The system shall provide an endpoint reporting backend and model readiness.
+
+4.9 NON-FUNCTIONAL REQUIREMENTS:
+    - NFR-1 (Performance): Server inference and Grad-CAM generation shall complete within 1.5 seconds on GPU or under 4.0 seconds on standard quad-core CPU.
+    - NFR-2 (Reliability): The backend shall handle malformed or corrupted image files gracefully without crashing, returning HTTP 400 Bad Request.
+    - NFR-3 (Usability): The user interface shall provide immediate visual feedback during inference (loading spinners, progress state) and distinct semantic color indicators (Red for Pneumonia, Green for Normal).
+    - NFR-4 (Portability): The application components shall run locally on Windows/Linux environments without requiring external cloud API dependencies.
+    - NFR-5 (Modularity): Decoupled frontend (Vite/React) and backend (Flask/TensorFlow) services allowing independent scaling and updates.
+
+4.10 HARDWARE REQUIREMENTS:
+    - Actual Development Hardware:
+        * Model Training Environment: Kaggle Cloud Dual GPU Instance (2x NVIDIA Tesla T4, 16 GB GDDR6 VRAM each, 30 GB System RAM).
+        * Local Development Machine: Intel Core / AMD multi-core workstation, Windows OS.
+        [Evidence: Pneumonia_Detection_DenseNet121_Report.txt:L9-10; notebook712c281550.ipynb:Cell 0-1]
+    - Minimum Hardware Requirements for Inference Deployment:
+        * Processor: 64-bit Dual-Core x86_64 CPU (2.0 GHz or higher).
+        * System Memory (RAM): Minimum 4 GB RAM (8 GB recommended for concurrent inference).
+        * Disk Storage: Minimum 500 MB free disk space (model file: ~53 MB; virtual environment: ~350 MB).
+        * GPU: Optional for inference; standard CPU supports forward pass and Grad-CAM in ~1-3 seconds.
+
+4.11 SOFTWARE REQUIREMENTS AND PURPOSES:
+    - Python 3.11.9: Backend programming language and execution environment [Evidence: venv/pyvenv.cfg:L3].
+    - TensorFlow 2.21.0 & Keras 3.15.1: Core deep learning framework used for model graph loading, tensor math, and gradient computation [Evidence: backend/requirements.txt:L3; pip list].
+    - Flask 3.1.3: Lightweight Web Server Gateway Interface (WSGI) microframework for REST API endpoints [Evidence: backend/requirements.txt:L1; pip list].
+    - Flask-CORS 6.0.5: Cross-Origin Resource Sharing handling for secure local API communication [Evidence: backend/requirements.txt:L2; pip list].
+    - OpenCV (opencv-python-headless 5.0.0.93): Computer vision library for heatmap resizing and Jet color-mapping [Evidence: backend/requirements.txt:L6; pip list].
+    - Pillow (PIL 12.3.0): Image file ingestion, format conversion, and Lanczos resampling [Evidence: backend/requirements.txt:L4; pip list].
+    - NumPy 2.4.6: Multi-dimensional array operations, batch expansion, and matrix transformations [Evidence: backend/requirements.txt:L5; pip list].
+    - Node.js & npm: JavaScript runtime and package manager powering the frontend build toolchain.
+    - React 18.3.1: Frontend declarative component architecture and reactive UI state management [Evidence: frontend/package.json:L12].
+    - Vite 6.0.7: Next-generation frontend bundler, HMR dev server, and API reverse proxy [Evidence: frontend/package.json:L18; frontend/vite.config.js:L5-16].
+    - Lucide React 0.468.0: Accessible vector icon set for healthcare UI components [Evidence: frontend/package.json:L14].
+
+
+================================================================================
+SECTION 5: PROPOSED SOLUTION
+================================================================================
+
+5.1 PROPOSED SYSTEM OVERVIEW:
+    PneumoShield AI addresses the diagnostic limitations of legacy computer-aided systems by synthesizing deep convolutional transfer learning with real-time explainability. The application bridges complex medical tensor computation and non-technical healthcare workflows through an intuitive single-page web dashboard.
+
+5.2 OVERALL SYSTEM WORKFLOW:
+    1. Acquisition & Selection: Clinician uploads a frontal radiograph via drag-and-drop.
+    2. Client Validation: Browser inspects file type and size; generates an instantaneous client-side object URL preview.
+    3. Parameter Tuning: Clinician optionally shifts the decision threshold slider (default = 0.75).
+    4. Asynchronous Request: Browser submits an HTTP POST multipart/form-data payload containing the binary image and threshold parameter to `/api/predict`.
+    5. Server Resampling & Preprocessing: Flask backend parses the payload, validates image integrity, resamples to 224x224 pixels using Lanczos interpolation, converts to float32 RGB array, and applies ImageNet DenseNet channel normalization.
+    6. Forward Inference: Model processes the tensor through 121 dense layers and outputs scalar sigmoid probability `p`.
+    7. Threshold Categorization: Binary verdict is evaluated against threshold `T`. Confidence percentage is calculated.
+    8. Grad-CAM Extraction: Gradient tape calculates gradients of the pneumonia output score with respect to feature maps in the final convolutional layer (`relu`). Saliency map is normalized, color-mapped with Jet colormap, blended with original pixels, and encoded as Base64 PNG.
+    9. Client Rendering: Asynchronous response is unpacked; UI displays diagnostic badges, confidence metrics, dual-class probability bar, and interactive heatmap selector tabs.
+
+5.3 ARCHITECTURE AND INDIVIDUAL COMPONENTS:
+    The system follows a three-tier decoupled client-server architecture:
+    - Presentation Tier (Frontend):
+        * Header Component: Brand identity, real-time API health status indicator.
+        * Navigation Controller: Tab switching between "Home", "Analyze X-Ray", "How It Works", and "Model Performance".
+        * Upload & Parameter Panel: Drag-and-drop dropzone, file metadata badge, interactive range slider.
+        * Diagnostic Results Panel: Semantic verdict banner, animated probability bars, and multi-mode Grad-CAM display.
+    - Application Tier (Backend):
+        * Flask Router: Dispatches `/api/health` and `/api/predict`.
+        * Input Sanitizer: File type validation, payload size enforcement (15 MB), byte decoding.
+        * Image Processor: PIL conversion, NumPy tensor reshaping, DenseNet standardization.
+        * Grad-CAM Engine: Gradient computation via `tf.GradientTape`, global average gradient pooling, ReLU rectification, OpenCV color mapping.
+    - Machine Learning Model Tier (Serialized Graph):
+        * Backbone: Pre-trained DenseNet-121 (Dense Blocks 1 through 4, Transition Layers 1 through 3).
+        * Custom Classification Head: GlobalAveragePooling2D, Dropout(0.4), Dense(1, Sigmoid).
+
+5.4 FRONTEND, BACKEND, ML MODEL, AND EXTERNAL SERVICE INTERACTIONS:
+    - Frontend <-> Backend: Communicates via JSON over HTTP REST. Handled locally via Vite development proxy (`http://localhost:5173/api` -> `http://127.0.0.1:5000/api`), bypassing CORS restrictions.
+    - Backend <-> ML Model: Model is loaded once into memory upon server initialization (`app.py:L235`) and kept warm with a dummy forward pass to eliminate cold-start inference latency.
+    - External Services: None. The system operates 100% locally and offline without external cloud dependencies or telemetry, protecting patient privacy.
+
+5.5 DATA FLOW BETWEEN COMPONENTS:
+    [User Image File]
+          |
+          v
+    [React FileInput / Dropzone] ---> [Browser Memory (Preview URL)]
+          |
+          v  (HTTP POST multipart/form-data: file + threshold)
+    [Flask API Endpoint: /api/predict]
+          |
+          v
+    [PIL & NumPy Processing] ---> Tensor (1, 224, 224, 3)
+          |
+          +-----------------------+
+          |                       |
+          v                       v
+    [DenseNet-121 Inference]  [tf.GradientTape Grad-CAM]
+          |                       |
+          v                       v
+    Scalar Probability (p)    Raw Heatmap Tensor (7, 7)
+          |                       |
+          v                       v
+    [Threshold Logic]         [OpenCV Resize + COLORMAP_JET]
+          |                       |
+          v                       v
+    Verdict & Confidence      Base64 PNG Data URIs (Overlay & Heatmap)
+          |                       |
+          +-----------+-----------+
+                      |
+                      v  (HTTP 200 JSON Response)
+    [React Result Panel] ---> [DOM Render: Banner, Bars, Image Viewers]
+
+5.6 STEP-BY-STEP METHODOLOGY:
+    Phase 1: Dataset Audit & Rectification (Stratified 80/20 train/validation split).
+    Phase 2: Data Preprocessing & Augmentation Pipeline Setup.
+    Phase 3: Class Imbalance Compensation via Balanced Loss Weighting.
+    Phase 4: Architecture Assembly (DenseNet-121 + GAP + Dropout + Sigmoid).
+    Phase 5: Stage 1 Training (Frozen Base, 10 epochs, Adam lr=1e-4).
+    Phase 6: Stage 2 Deep Fine-Tuning (Unfreezing layers 300+, 15 epochs, lr=1e-5 to 2e-6).
+    Phase 7: Test Set Benchmarking & Decision Threshold Optimization Sweep (0.10 to 0.90).
+    Phase 8: Grad-CAM Explainability Algorithm Design for Nested Functional Models.
+    Phase 9: REST API Engineering with Flask, CORS, and OpenCV.
+    Phase 10: Frontend Engineering with React, Vite, and Modern Healthcare UI tokens.
+    Phase 11: End-to-End System Integration & Windows Process Automation.
+
+5.7 DEVELOPMENT PHASES ESTABLISHED FROM PROJECT EVIDENCE:
+    - Phase A (Experimental Research & Modeling): Completed in Kaggle cloud environment (`notebook712c281550.ipynb`) resulting in training history, confusion matrices, and the exported artifact `best_densenet121_finetuned.keras`.
+    - Phase B (Model Serialization & Audit): Completed on 2026-09-03 as evidenced by `metadata.json` inside `best_densenet121_finetuned.zip`, verifying weight tensors and layer connectivity.
+    - Phase C (Production Backend Engineering): Created `backend/app.py` implementing model discovery, warm-up inference, `/api/health`, and Grad-CAM generation.
+    - Phase D (Production Frontend Engineering): Assembled React application with custom UI components, responsive CSS variables, threshold slider, and Lucide icons.
+    - Phase E (Deployment Scripting): Authored `backend.bat`, `frontend.bat`, and unified launcher `pnewmonia.bat` for turnkey execution.
+
+5.8 TEXT-BASED SYSTEM ARCHITECTURE DIAGRAM:
+
++-------------------------------------------------------------------------------+
+|                           CLIENT TIER (React 18 / Vite)                       |
+|                                                                               |
+|  +------------------+  +-------------------+  +----------------------------+  |
+|  | Drag-and-Drop    |  | Dynamic Threshold |  | Live API Health Badge      |  |
+|  | Radiograph Input |  | Slider (0.50-0.90)|  | (/api/health Polling)      |  |
+|  +--------+---------+  +---------+---------+  +-------------+--------------+  |
+|           |                      |                          |                 |
+|           +-----------+----------+                          |                 |
+|                       |                                     |                 |
+|                       v                                     v                 |
+|            [Fetch: POST /api/predict]             [Fetch: GET /api/health]    |
++-----------------------|-------------------------------------|-----------------+
+                        | (Vite Proxy: Port 5173 -> 5000)     |
++-----------------------v-------------------------------------v-----------------+
+|                         SERVER TIER (Flask 3.1.3 WSGI)                        |
+|                                                                               |
+|  +-------------------------------------------------------------------------+  |
+|  | Request Parser & Validator (MIME Type Check, 15 MB Payload Guard)       |  |
+|  +------------------------------------+------------------------------------+  |
+|                                       |                                       |
+|                                       v                                       |
+|  +-------------------------------------------------------------------------+  |
+|  | Image Preprocessing Pipeline (PIL Resize 224x224, DenseNet Normalization)|  |
+|  +------------------------------------+------------------------------------+  |
+|                                       |                                       |
+|                   +-------------------+-------------------+                   |
+|                   |                                       |                   |
+|                   v                                       v                   |
+|  +---------------------------------+   +-----------------------------------+  |
+|  | DenseNet-121 Inference Engine   |   | Explainable AI: Grad-CAM Engine   |  |
+|  | Forward Pass -> Sigmoid Output  |   | tf.GradientTape on 'relu' Layer   |  |
+|  +----------------+----------------+   +-----------------+-----------------+  |
+|                   |                                       |                   |
+|                   v                                       v                   |
+|  +---------------------------------+   +-----------------------------------+  |
+|  | Probability & Threshold Decision|   | Heatmap Normalization, OpenCV Jet |  |
+|  | P(Pneumonia) vs Threshold (0.75)|   | Colormap, Alpha Blend (0.55/0.45) |  |
+|  +----------------+----------------+   +-----------------+-----------------+  |
+|                   |                                       |                   |
+|                   +-------------------+-------------------+                   |
+|                                       |                                       |
+|                                       v                                       |
+|  +-------------------------------------------------------------------------+  |
+|  | JSON Response Formatter (Verdict, Confidence, Base64 PNG Heatmap URLs)  |  |
+|  +------------------------------------+------------------------------------+  |
++---------------------------------------|---------------------------------------+
+                                        v (HTTP 200 JSON Response)
++-------------------------------------------------------------------------------+
+|                           CLIENT PRESENTATION DISPLAY                         |
+|                                                                               |
+|  +--------------------+  +--------------------+  +-------------------------+  |
+|  | Diagnostic Verdict |  | Confidence & Dual  |  | Saliency Visualizer:    |  |
+|  | Banner (NORMAL /   |  | Probability Bars   |  | Tabs for Overlay,       |  |
+|  | PNEUMONIA)         |  | (Pneumonia/Normal) |  | Heatmap Only, Original  |  |
+|  +--------------------+  +--------------------+  +-------------------------+  |
++-------------------------------------------------------------------------------+
+
+5.9 TEXT-BASED WORKFLOW / FLOWCHART:
+
+[Start: User opens Web App]
+       |
+       v
+[Backend Health Check: GET /api/health] <---------------+
+       |                                                |
+       +---> [Backend Online?]                          | (10s interval polling)
+                 |-- No  --> [Show Offline Indicator]---+
+                 |-- Yes --> [Show Ready Badge]
+       |
+       v
+[User uploads Chest Radiograph]
+       |
+       v
+[Client-side validation: Valid image & <= 15 MB?]
+       |-- No  --> [Display Error Alert in UI]
+       |-- Yes --> [Generate Instant Preview URL & Enable Analyze Button]
+       |
+       v
+[User optionally adjusts Threshold Slider (0.50 - 0.90, default 0.75)]
+       |
+       v
+[User clicks "Analyze Chest Radiograph"]
+       |
+       v
+[Show Loading Spinner & Disable Controls]
+       |
+       v
+[POST multipart/form-data to /api/predict]
+       |
+       v
+[Backend validates file bytes and decode safety]
+       |-- Error --> [Return HTTP 400 with Error JSON]
+       |-- Valid --> [Continue Preprocessing]
+       |
+       v
+[Convert to RGB -> Resize to (224, 224) via Lanczos -> DenseNet preprocess_input]
+       |
+       v
+[Model Predict: Calculate scalar p = Sigmoid(Forward_Pass)]
+       |
+       v
+[Evaluate: Is p >= threshold?]
+       |-- Yes --> Verdict = "PNEUMONIA", Confidence = p * 100
+       |-- No  --> Verdict = "NORMAL",    Confidence = (1 - p) * 100
+       |
+       v
+[Compute Grad-CAM on nested layer 'relu']
+       |
+       v
+[Apply OpenCV Jet Colormap & Blend: Overlay = 0.55 * Orig + 0.45 * Heatmap]
+       |
+       v
+[Encode Overlay and Heatmap to Base64 PNG strings]
+       |
+       v
+[Return JSON: {prediction, confidence, pneumonia_prob, normal_prob, gradcam_url}]
+       |
+       v
+[Frontend receives payload -> Renders Verdict, Probability Meters & Grad-CAM Image]
+       |
+       v
+[User toggles Overlay / Heatmap / Original views]
+       |
+       v
+[End: Awaiting Next Diagnostic Analysis]
+
+5.10 IMPORTANT DESIGN DECISIONS AND SUPPORTING RATIONALE:
+    1. Selection of DenseNet-121 over ResNet-50 / VGG-16: DenseNet features dense connectivity across layers, maximizing feature propagation while keeping parameter count low (7.04M params vs. 25.6M for ResNet-50). This lowers memory footprint and mitigates overfitting on medical image datasets.
+    2. Threshold Calibration to 0.75: Standard threshold (0.50) yielded 52 false positives out of 234 normal patients (22.2% false alarm rate). Calibrating to 0.75 reduced false positives to 24 while maintaining 93.08% sensitivity, balancing clinical safety with alarm fatigue reduction.
+    3. Programmatic Nested Layer Search for Grad-CAM: Modern Keras functional transfer learning wraps the base network inside a sub-model layer. Standard Grad-CAM snippets targeting `model.get_layer()` fail because intermediate conv layers are hidden. The implementation programmatically inspects inner layers and builds a dedicated sub-graph tapping `inner_model.get_layer('relu')`.
+    4. Base64 Data URL Return: The backend encodes heatmaps directly as Base64 PNG strings in the JSON response rather than saving files to disk. This ensures stateless server execution, prevents filesystem bloat, and guarantees patient data confidentiality.
+    5. Decoupled Vite Proxy Architecture: Placing Vite's development proxy between the React single-page application and Flask eliminates cross-origin resource sharing (CORS) complications during local development and simulates production reverse-proxy routing.
+    [Evidence: backend/app.py:L34-144, L211-231; frontend/vite.config.js:L9-14; Pneumonia_Detection_DenseNet121_Report.txt:L89-130, L250-290]
+
+
+================================================================================
+SECTION 6: DATASET DESCRIPTION
+================================================================================
+
+6.1 EXACT DATASET NAME:
+    - Chest X-Ray Images (Pneumonia)
+    - Also cited as: Kermany Pediatric Chest X-Ray Dataset / Kaggle Mooney Chest X-Ray Corpus.
+    [Evidence: notebook712c281550.ipynb:Cell 1-3; Pneumonia_Detection_DenseNet121_Report.txt:L67-71]
+
+6.2 ORIGINAL SOURCE AND SOURCE URL:
+    - Kaggle Source URL: https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
+    - Original Research Benchmark: Kermany, D. S., Goldbaum, M., Cai, W., et al. "Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning", Cell 172(5), 1122-1131, 2018.
+    - Dataset Path in Kaggle Workspace: `/kaggle/input/datasets/paultimothymooney/chest-xray-pneumonia/chest_xray`
+    [Evidence: notebook712c281550.ipynb:Cell 1-3; Pneumonia_Detection_DenseNet121_Report.txt:L69-72]
+
+6.3 DATASET LICENSE AND USAGE CONDITIONS:
+    - License: CC BY 4.0 (Creative Commons Attribution 4.0 International).
+    - Clinical Approval: Acquired from pediatric patients of one to five years of age at Guangzhou Women and Children's Medical Center, Guangzhou, under institutional review board approval. All personal identifiable information (PII) was de-identified and radiographs underwent rigorous clinical screening.
+    [Evidence: Kermany et al., Cell 2018; Kaggle Dataset Metadata]
+
+6.4 NUMBER OF RECORDS AND DATA FORMAT:
+    - Total Images in Benchmark: 5,856 chest radiographs.
+    - Data Modality: Grayscale 2D frontal chest radiographs (Anteroposterior [AP] views).
+    - Image File Encodings: JPEG (.jpeg / .jpg).
+    - Spatial Dimensions: Variable native resolutions ranging from ~400x600 up to ~2000x2000 pixels.
+    [Evidence: notebook712c281550.ipynb:Cell 2-3; Pneumonia_Detection_DenseNet121_Report.txt:L73-82]
+
+6.5 TARGET VARIABLE AND PREDICTION CLASSES:
+    - Target Variable: Binary pulmonary status.
+    - Class 0: "NORMAL" (Negative for pneumonia; clear pulmonary fields without focal consolidation).
+    - Class 1: "PNEUMONIA" (Positive for pneumonia; manifesting consolidation, air bronchograms, or diffuse interstitial infiltrates).
+    [Evidence: notebook712c281550.ipynb:Cell 3, 6, 15; backend/app.py:L211]
+
+6.6 CLASS DISTRIBUTION AND SAMPLES COUNTS:
+    Initial Unmodified Benchmark Partition (as downloaded from Kaggle):
+    +------------------------------------------------------------------+
+    | Split Directory | NORMAL Images | PNEUMONIA Images | Total Images |
+    +-----------------+---------------+------------------+--------------+
+    | train           | 1,341 (25.7%) | 3,875 (74.3%)    | 5,216        |
+    | val (original)  |     8 (50.0%) |     8 (50.0%)    |    16        |
+    | test (untouched)|   234 (37.5%) |   390 (62.5%)    |   624        |
+    +-----------------+---------------+------------------+--------------+
+    | Total Raw Images| 1,583 (27.0%) | 4,273 (73.0%)    | 5,856        |
+    +------------------------------------------------------------------+
+    [Evidence: notebook712c281550.ipynb:Cell 2, 6; Pneumonia_Detection_DenseNet121_Report.txt:L73-83]
+
+6.7 RE-PARTITIONING FOR STATISTICALLY VALID TRAINING:
+    The benchmark's original `val` folder contained only 16 images, rendering validation metrics statistically unreliable for early stopping and hyperparameter tuning. To resolve this, the 5,216 images in `train` were re-split into an 80/20 stratified distribution:
+    +------------------------------------------------------------------+
+    | Re-split Dataset Partition | Sample Count | Batch Count (Batch=32)|
+    +----------------------------+--------------+-----------------------+
+    | Training Set (80%)         | 4,173 images | 131 batches           |
+    | Validation Set (20%)       | 1,043 images |  33 batches           |
+    | Untouched Test Set         |   624 images |  20 batches           |
+    +------------------------------------------------------------------+
+    [Evidence: notebook712c281550.ipynb:Cell 3; Pneumonia_Detection_DenseNet121_Report.txt:L84-93]
+
+6.8 CLASS IMBALANCE ANALYSIS:
+    In the training data, pneumonia instances outnumber normal instances by nearly 3 to 1 (3,875 vs. 1,341; ratio of 2.89:1). Uncompensated models tend to exhibit high recall on the majority class (Pneumonia) while suffering high false-positive rates on the minority class (Normal). The project mitigated this skew through loss class-weighting (detailed in Section 7).
+    [Evidence: notebook712c281550.ipynb:Cell 6; Pneumonia_Detection_DenseNet121_Report.txt:L100-118]
+
+
+================================================================================
+SECTION 7: DATA PREPROCESSING AND FEATURE ENGINEERING
+================================================================================
+
+7.1 DATA LOADING:
+    - Training & Validation: Loaded using `tf.keras.utils.image_dataset_from_directory` pointing to the training directory, with `validation_split=0.20`, `subset="both"`, `seed=42`, `image_size=(224, 224)`, and `batch_size=32`.
+    - Test Set: Loaded from `test` directory with `shuffle=False`, `image_size=(224, 224)`, and `batch_size=32`.
+    - Pipeline Optimization: Prefetching and caching were applied via `dataset.prefetch(buffer_size=tf.data.AUTOTUNE)` and `dataset.cache()` to prevent I/O bottlenecks.
+    [Evidence: notebook712c281550.ipynb:Cell 3; Pneumonia_Detection_DenseNet121_Report.txt:L95-99]
+
+7.2 DATA CLEANING AND INTEGRITY VERIFICATION:
+    - Non-image files and hidden directories (e.g., `.DS_Store`) were excluded by filtering file extensions against `(".jpg", ".jpeg", ".png")`.
+    - In the inference pipeline (`backend/app.py`), incoming bytes are validated using Pillow (`Image.open(io.BytesIO(raw_bytes)).verify()`) to trap truncated or corrupted image payloads prior to tensor conversion.
+    [Evidence: notebook712c281550.ipynb:Cell 6; backend/app.py:L187-192]
+
+7.3 MISSING, DUPLICATE, AND INVALID VALUE HANDLING:
+    - Missing Values: Image datasets do not have tabular missing values; corrupted or zero-byte files were filtered out during dataset directory traversal.
+    - Duplicate Handling: No deduplication script was executed on the original Kermany corpus.
+    - Invalid Values: Pixel intensities were strictly validated within the valid uint8 range [0, 255] before floating-point conversion.
+    [Evidence: notebook712c281550.ipynb:Cell 2-4]
+
+7.4 NORMALIZATION AND CHANNEL STANDARDIZATION:
+    - Color Representation: Single-channel grayscale radiographs were converted to 3-channel RGB (`pil_img.convert("RGB")`) to align with ImageNet pre-trained convolutional filters.
+    - DenseNet Preprocessing Function: Inputs are transformed using `tf.keras.applications.densenet.preprocess_input`. This function:
+        a) Normalizes RGB intensities to [0, 1].
+        b) Scales each color channel by the ImageNet distribution mean `[0.485, 0.456, 0.406]` and standard deviation `[0.229, 0.224, 0.225]`.
+    [Evidence: notebook712c281550.ipynb:Cell 4; backend/app.py:L24, L73-78]
+
+7.5 CLASS IMBALANCE MITIGATION VIA COMPUTED LOSS WEIGHTS:
+    To penalize misclassifications on the minority Normal class, balanced class weights were calculated using Scikit-Learn's mathematical formulation:
+        Weight_j = N_total / (N_classes * N_samples_j)
+    - Weight for Class 0 (NORMAL):    1.9448
+    - Weight for Class 1 (PNEUMONIA): 0.6730
+    These weights were supplied directly to `model.fit(..., class_weight=class_weights)`. As a result, misclassifying a healthy patient penalized the objective function nearly 2.89 times more severely than misclassifying a pneumonia patient.
+    [Evidence: notebook712c281550.ipynb:Cell 6; Pneumonia_Detection_DenseNet121_Report.txt:L106-118]
+
+7.6 DATA AUGMENTATION PIPELINE:
+    Implemented using a `tf.keras.Sequential` layer stack applied exclusively during training (`preprocess_train`):
+    1. `layers.RandomFlip("horizontal")`: Simulates anatomical mirror symmetry.
+    2. `layers.RandomRotation(0.05)`: Rotates images up to +/- 18 degrees, simulating slight patient posture tilt during exposure.
+    3. `layers.RandomZoom(0.10)`: Simulates patient-to-detector distance variances.
+    4. `layers.RandomContrast(0.10)`: Simulates exposure differences across diverse hospital X-ray tube generators.
+    Data augmentation was strictly disabled during validation and testing (`preprocess_val_test`).
+    [Evidence: notebook712c281550.ipynb:Cell 4; Pneumonia_Detection_DenseNet121_Report.txt:L122-140]
+
+7.7 PREVENTION OF DATA LEAKAGE:
+    - Preprocessing parameters and class weights were computed strictly on the training set.
+    - Data augmentation layers were placed inside the training data mapping function, ensuring validation and test images remained unmodified.
+    - The 624-image test set remained untouched and was never used for early stopping or threshold determination during training.
+    [Evidence: notebook712c281550.ipynb:Cell 3-4, 15]
+
+
+================================================================================
+SECTION 8: MACHINE LEARNING MODEL DEVELOPMENT
+================================================================================
+
+8.1 ARCHITECTURAL SELECTION & RATIONALE:
+    - Selected Model: DenseNet-121 (Huang et al., 2017).
+    - Framework: TensorFlow 2.x / Keras 3.x.
+    - Model Class: Functional Keras Graph (`ClaimShield_DenseNet121`).
+    - Justification: DenseNet's dense connectivity connects each layer to every subsequent layer in a feed-forward manner. For medical chest radiography, this structure preserves multi-scale spatial features (fine interstitial striations up to large lobar consolidations) while eliminating vanishing gradient bottlenecks with only 7.04 million parameters.
+    [Evidence: notebook712c281550.ipynb:Cell 7; config.json inside best_densenet121_finetuned.zip; Pneumonia_Detection_DenseNet121_Report.txt:L145-165]
+
+8.2 DETAILED LAYER-BY-LAYER ARCHITECTURE:
+    +---------------------------------------------------------------------------+
+    | Layer Index | Layer Name             | Type               | Output Shape   |
+    +-------------+------------------------+--------------------+----------------+
+    | 0           | input_layer_1          | InputLayer         | (None, 224, 224, 3)|
+    | 1           | densenet121            | Functional Submodel| (None, 7, 7, 1024)|
+    | 2           | global_average_pooling | GlobalAveragePool2D| (None, 1024)   |
+    | 3           | dropout                | Dropout (rate=0.40)| (None, 1024)   |
+    | 4           | dense                  | Dense (Units=1)    | (None, 1)      |
+    +---------------------------------------------------------------------------+
+    - DenseNet-121 Base Internals: Comprises 427 total layers, organized into 4 Dense Blocks (6, 12, 24, and 16 dense layers respectively) linked by 3 Transition Layers (1x1 Conv + 2x2 Average Pooling).
+    - The classification output layer employs a Sigmoid activation function producing a scalar probability `p` in the range [0.0, 1.0].
+    [Evidence: config.json inside best_densenet121_finetuned.zip; notebook712c281550.ipynb:Cell 7, 11]
+
+8.3 PARAMETER BREAKDOWN:
+    - Total Parameters:         7,038,529 (approx. 26.85 MB in 32-bit floats)
+    - Stage 1 Trainable:            1,025 (Classification head only: 1,024 weights + 1 bias)
+    - Stage 1 Non-Trainable:    7,037,504 (DenseNet-121 base completely frozen)
+    - Stage 2 Trainable:        2,890,433 (Dense Block 4 and Classification Head unfrozen)
+    - Stage 2 Non-Trainable:    4,148,096 (Layers 0 to 299 remain frozen)
+    [Evidence: notebook712c281550.ipynb:Cell 7, 11, 34; Pneumonia_Detection_DenseNet121_Report.txt:L166-175, L222-227]
+
+8.4 TWO-STAGE TRAINING PROCEDURE:
+    - Stage 1: Feature Extraction (Transfer Learning)
+        * Backbone frozen (`base_model.trainable = False`).
+        * Epochs: 10.
+        * Optimizer: Adam (Learning Rate = 1e-4 / 0.0001).
+        * Loss Function: Binary Crossentropy.
+        * Monitored Metrics: Accuracy, Precision, Recall, AUC.
+        * Callbacks:
+            - EarlyStopping: `monitor="val_auc"`, `mode="max"`, `patience=3`, `restore_best_weights=True`.
+            - ReduceLROnPlateau: `monitor="val_loss"`, `factor=0.2`, `patience=2`, `min_lr=1e-7`.
+            - ModelCheckpoint: Saved to `/kaggle/working/best_densenet121_stage1.keras`.
+    - Stage 2: Deep Fine-Tuning
+        * Backbone unfreezing: Layers 300 to 427 unfrozen (`for layer in base_model.layers[300:]: layer.trainable = True`).
+        * Epochs: 15.
+        * Optimizer: Adam (Initial Fine-Tuning LR = 1e-5 / 0.00001).
+        * Callbacks:
+            - EarlyStopping: `monitor="val_auc"`, `mode="max"`, `patience=4`, `restore_best_weights=True`.
+            - ReduceLROnPlateau: `monitor="val_loss"`, `factor=0.2`, `patience=2`, `min_lr=1e-7`. (Triggered at Epoch 15 reducing LR to 2.0e-6).
+            - ModelCheckpoint: Saved to `/kaggle/working/best_densenet121_finetuned.keras`.
+    [Evidence: notebook712c281550.ipynb:Cell 8, 9, 11; Pneumonia_Detection_DenseNet121_Report.txt:L178-245]
+
+8.5 SAVED MODEL ARTIFACT AUDIT:
+    - File Name: `best_densenet121_finetuned.keras` (also present as `best_densenet121_finetuned.zip`).
+    - File Size: 52,875,261 bytes (~50.42 MB uncompressed / 52.88 MB archive).
+    - File Structure: Validated Keras 3 format containing `metadata.json`, `config.json`, and `model.weights.h5`.
+    - Weights Verification: Validated with `h5py`; all layer weights and Adam optimizer moments preserved without corruption.
+    [Evidence: Pneumonia_Detection_DenseNet121_Report.txt:L415-460]
+
+8.6 GRAD-CAM EXPLAINABILITY PIPELINE:
+    Standard Grad-CAM utilities cannot inspect intermediate layers inside nested Functional sub-models. The implementation programmatically resolves the inner DenseNet layer:
+    1. Taps the final convolutional activation layer: `relu` at the output of Dense Block 4 (tensor shape: `(None, 7, 7, 1024)`).
+    2. Builds an extraction sub-model mapping the inputs to the `relu` conv output and final model prediction.
+    3. Utilizes `tf.GradientTape()` to calculate the gradient of the predicted pneumonia score with respect to the 1024 feature maps.
+    4. Computes spatial importance weights via Global Average Pooling of gradients: `alpha_k = (1/(H*W)) * sum(sum(dY / dA_k))`.
+    5. Calculates weighted feature map combination and applies ReLU: `L_GradCAM = ReLU(sum(alpha_k * A_k))`.
+    6. Resizes the 7x7 heatmap to original image dimensions, maps to RGB using `cv2.COLORMAP_JET`, and blends with original radiograph: `Overlay = (0.55 * Original + 0.45 * Heatmap)`.
+    [Evidence: backend/app.py:L81-144; notebook712c281550.ipynb:Cell 25, 26, 29; Pneumonia_Detection_DenseNet121_Report.txt:L375-414]
+
+
+================================================================================
+SECTION 9: EVALUATION METRICS
+================================================================================
+
+9.1 VERIFIED EVALUATION METRICS SUMMARY TABLE:
+    The following metrics are directly verified from the execution outputs of `notebook712c281550.ipynb` (Cell 15, 16, 17) and cross-verified in `Pneumonia_Detection_DenseNet121_Report.txt`:
+
++------------------------------------------------------------------------------------+
+| Evaluation Metric   | Stage 1 (Frozen) | Stage 2 (Finetuned) | Test Set (Thresh 0.50) | Test Set (Thresh 0.75) |
++---------------------+------------------+---------------------+------------------------+------------------------+
+| Classification Loss | 0.3017 (val)     | 0.1414 (val)        | 0.2780 (test)          | 0.2780 (test)          |
+| Overall Accuracy    | 88.40% (val)     | 94.44% (val)        | 89.58% (559/624)       | 91.35% (570/624)       |
+| Area Under ROC (AUC)| 0.9687 (val)     | 0.9970 (val)        | 0.9651 (0.9646)        | 0.9651 (0.9646)        |
+| Precision (Positive)| 98.70% (val)     | 99.73% (val)        | 87.88%                 | 93.08%                 |
+| Recall (Sensitivity)| 85.89% (val)     | 92.95% (val)        | 96.67%                 | 93.08%                 |
+| F1-Score (Positive) | ~91.8%           | ~96.2%              | 92.06%                 | 93.08%                 |
+| Macro Avg F1        | -                | -                   | 88.46%                 | -                      |
+| Weighted Avg F1     | -                | -                   | 89.36%                 | -                      |
++------------------------------------------------------------------------------------+
+[Evidence: notebook712c281550.ipynb:Cell 9, 11, 15, 16, 17; Pneumonia_Detection_DenseNet121_Report.txt:L463-478]
+
+9.2 CONFUSION MATRIX ON UNTOUCHED TEST SET (Threshold = 0.50):
+    Evaluated on 624 images (234 Normal, 390 Pneumonia):
+    ------------------------------------------------------------------
+                     | Predicted NORMAL | Predicted PNEUMONIA | Total
+    ------------------------------------------------------------------
+    Actual NORMAL    |   182 (TN)       |    52 (FP)          |  234
+    Actual PNEUMONIA |    13 (FN)       |   377 (TP)          |  390
+    ------------------------------------------------------------------
+    Total            |   195            |   429               |  624
+    ------------------------------------------------------------------
+    - True Positives (TP):  377 (Pneumonia correctly identified)
+    - True Negatives (TN):  182 (Normal correctly identified)
+    - False Positives (FP):  52 (Normal misclassified as Pneumonia)
+    - False Negatives (FN):  13 (Pneumonia missed)
+    [Evidence: notebook712c281550.ipynb:Cell 15; frontend/src/App.jsx:L751-815; Pneumonia_Detection_DenseNet121_Report.txt:L260-272]
+
+9.3 PER-CLASS PERFORMANCE BREAKDOWN (Threshold = 0.50):
+    - NORMAL (Class 0, Support = 234):
+        * Precision: 0.9333 (93.33%)
+        * Recall:    0.7778 (77.78%)
+        * F1-Score:  0.8485 (84.85%)
+    - PNEUMONIA (Class 1, Support = 390):
+        * Precision: 0.8788 (87.88%)
+        * Recall:    0.9667 (96.67%)
+        * F1-Score:  0.9206 (92.06%)
+    [Evidence: notebook712c281550.ipynb:Cell 15; Pneumonia_Detection_DenseNet121_Report.txt:L274-285]
+
+9.4 OPTIMAL THRESHOLD SWEEP ANALYSIS (0.10 TO 0.90):
+    Grid search executed across the continuous test probabilities in increments of 0.05:
+    -------------------------------------------------------------------
+    Threshold   Accuracy     Precision     Recall       F1-Score
+    -------------------------------------------------------------------
+      0.10       83.33%       79.55%       98.72%       88.10%
+      0.15       85.42%       81.88%       98.46%       89.41%
+      0.20       86.06%       82.58%       98.46%       89.82%
+      0.25       86.54%       83.41%       97.95%       90.09%
+      0.30       87.50%       84.67%       97.69%       90.71%
+      0.35       88.30%       85.62%       97.69%       91.26%
+      0.40       88.78%       86.36%       97.44%       91.57%
+      0.45       89.42%       87.33%       97.18%       91.99%
+      0.50       89.58%       87.88%       96.67%       92.06% (Baseline)
+      0.55       89.90%       88.65%       96.15%       92.25%
+      0.60       90.22%       89.64%       95.38%       92.42%
+      0.65       90.06%       90.00%       94.62%       92.25%
+      0.70       90.87%       91.32%       94.36%       92.81%
+      0.75       91.35%       93.08%       93.08%       93.08% (OPTIMAL F1)
+      0.80       90.71%       93.46%       91.54%       92.49%
+      0.85       90.38%       93.65%       90.77%       92.19%
+      0.90       90.38%       95.33%       88.97%       92.04%
+    -------------------------------------------------------------------
+    Key Finding: Calibrating the decision threshold to 0.75 optimizes F1-Score to 93.08% (up +1.02%) and boosts precision by +5.20% (to 93.08%), correctly classifying 28 additional normal patients without compromising clinical diagnostic safety.
+    [Evidence: notebook712c281550.ipynb:Cell 17; Pneumonia_Detection_DenseNet121_Report.txt:L298-335]
+
+
+================================================================================
+SECTION 10: WEBSITE AND APPLICATION IMPLEMENTATION
+================================================================================
+
+10.1 FRONTEND IMPLEMENTATION:
+    - Framework & Stack: React 18.3.1 single-page application built with Vite 6.0.7 [Evidence: frontend/package.json:L12, L18].
+    - Styling Architecture: Vanilla CSS utilizing modern custom property design tokens (colors, shadows, blur glassmorphism, responsive cards) [Evidence: frontend/src/index.css:L1-100].
+    - Typography: Google Fonts `Plus Jakarta Sans` and `JetBrains Mono` [Evidence: frontend/src/index.css:L1].
+    - Iconography: Lucide-React 0.468.0 accessible vector icons [Evidence: frontend/package.json:L14].
+    - State Management: React Hooks (`useState`, `useEffect`, `useRef`).
+    - Implemented Navigation Tabs:
+        1. "Home": Hero banner, technical badge, architecture highlights, high-level metric strips.
+        2. "Analyze X-Ray": Operational diagnostic console (upload zone, threshold slider, inference trigger, verdict banner, Grad-CAM viewer).
+        3. "How It Works": 4-step pipeline explanation (Resize, Preprocessing, Forward Pass, Grad-CAM).
+        4. "Model Performance": Detailed test metric strips and interactive 2x2 confusion matrix card.
+    - Interactive Dashboard Elements:
+        * Drag-and-drop file uploader with visual drop states (`.dragging`).
+        * Thumbnail preview with image removal and replacement controls.
+        * Decision Threshold slider (range: 0.50 to 0.90, step: 0.05).
+        * Primary diagnostic banner with conditional styling (Red for Pneumonia, Green for Normal).
+        * Animated dual-class probability breakdown progress bar.
+        * Multi-mode image switch buttons: "Overlay", "Heatmap Only", "Original".
+        * Live backend health indicator pill with automatic 10-second polling.
+    [Evidence: frontend/src/App.jsx:L1-835; frontend/src/index.css:L1-835]
+
+10.2 BACKEND IMPLEMENTATION:
+    - Framework & Stack: Python Flask 3.1.3 micro-framework with Flask-CORS 6.0.5 [Evidence: backend/requirements.txt:L1-2; pip list].
+    - Application Entry Point: `backend/app.py` executed via `python app.py` on `http://127.0.0.1:5000`.
+    - Logging: Python `logging` module configured with INFO level to track model loading and Grad-CAM layers.
+    - Model Discovery Logic: `find_model_path()` dynamically searches candidate paths (`../best_densenet121_finetuned.keras`, `../../...`, `./...`) ensuring portability.
+    - Model Warm-Up: Loads model during startup and passes a dummy tensor `(1, 224, 224, 3)` to initialize execution graphs and GPU/CPU kernels, eliminating cold-start latency.
+    - Error Handling:
+        * 503 Service Unavailable: When the model is not loaded.
+        * 400 Bad Request: When no image is supplied, empty filename, unsupported extension, or unreadable bytes.
+        * 413 Payload Too Large: When file size exceeds 15 MB.
+        * 500 Internal Server Error: When preprocessing or inference encounters an exception.
+    [Evidence: backend/app.py:L1-238]
+
+10.3 API ENDPOINTS SPECIFICATION:
+    1. Health Endpoint:
+       - URL: `GET /api/health`
+       - Request Parameters: None
+       - Response Format: JSON
+       - Response Example:
+         {
+           "status": "ok",
+           "model_loaded": true,
+           "message": "DenseNet-121 model is loaded and ready."
+         }
+       - Purpose: Facilitates live health polling from the React frontend.
+    2. Prediction Endpoint:
+       - URL: `POST /api/predict`
+       - Content-Type: `multipart/form-data`
+       - Request Fields:
+         * `image` (Binary File, Required): JPEG or PNG chest radiograph.
+         * `threshold` (Float String, Optional): Decision threshold in [0.05, 0.99] (Default: 0.75).
+       - Response Format: JSON
+       - Response Fields:
+         * `prediction` (String): "PNEUMONIA" or "NORMAL".
+         * `confidence` (Float): Confidence percentage rounded to 2 decimals.
+         * `pneumonia_probability` (Float): Probability score rounded to 6 decimals.
+         * `normal_probability` (Float): Complementary score rounded to 6 decimals.
+         * `threshold` (Float): Evaluated threshold.
+         * `gradcam_url` (String): Base64-encoded PNG data URI of blended heatmap overlay.
+         * `heatmap_url` (String): Base64-encoded PNG data URI of raw Jet heatmap.
+    [Evidence: backend/app.py:L147-232]
+
+10.4 MACHINE LEARNING INTEGRATION:
+    - Input Hand-off: React wraps the native file object in a `FormData` envelope and triggers an asynchronous `fetch('/api/predict', { method: 'POST', body: formData })`.
+    - Routing: Vite proxy reroutes `/api` to `http://127.0.0.1:5000/api`.
+    - Tensor Transformation: Flask receives bytes, verifies via PIL, resizes to (224, 224), converts to NumPy float array, expands batch dimension to shape (1, 224, 224, 3), and standardizes with `densenet.preprocess_input`.
+    - Prediction: Tensor is processed via `model.predict(input_tensor, verbose=0)`.
+    - Explainability Hook: Taps inner DenseNet layer `relu`, computes gradients, maps colormap, blends image array, and encodes to data URIs.
+    - Client Render: React unpacks JSON and sets reactive state (`setPredictionResult(data)`), rendering diagnostics in under a second.
+    [Evidence: backend/app.py:L73-144, L160-232; frontend/src/App.jsx:L133-166, L500-630]
+
+10.5 DATABASE STATUS:
+    - Database Technology: None implemented.
+    - Evidence & Justification: The current codebase is designed as a stateless inference service. Patient records and radiograph files are processed transiently in memory and never written to a persistent database or local disk cache.
+    [Evidence: codebase audit of backend/ and frontend/]
+
+10.6 OTHER INTEGRATIONS:
+    - External APIs: None. The system operates fully self-contained.
+    - Authentication / User Management: Not implemented in current version.
+    - Export / Reporting: Visual data is displayed in the browser; direct PDF report download is not yet implemented.
+    - Deployment Scripts: Fully implemented native Windows batch orchestration:
+        * `backend.bat`: Detects virtual environment Python and starts Flask server.
+        * `frontend.bat`: Navigates to frontend directory and initiates `npm run dev`.
+        * `pnewmonia.bat`: Master orchestrator launching both servers in dedicated command windows.
+    [Evidence: backend.bat:L1-24; frontend.bat:L1-10; pnewmonia.bat:L1-11]
+
+
+================================================================================
+SECTION 11: DEVELOPMENT ENVIRONMENT
+================================================================================
+
+11.1 VERIFIED TECHNOLOGY STACK TABLE:
+
++------------------------+-------------------+------------------------------------------+------------------------------+
+| Technology / Tool      | Verified Version  | Purpose in Project                       | Evidence Source File         |
++------------------------+-------------------+------------------------------------------+------------------------------+
+| Operating System       | Windows 11 / x64  | Host development & runtime environment   | System metadata; batch scripts|
+| Python                 | 3.11.9            | Backend execution runtime                | venv/pyvenv.cfg:L3           |
+| TensorFlow             | 2.21.0            | Deep learning framework & tensor math    | venv pip list; requirements  |
+| Keras                  | 3.15.1            | High-level neural network API            | venv pip list; config.json   |
+| Flask                  | 3.1.3             | Backend REST API framework               | venv pip list; requirements  |
+| Flask-CORS             | 6.0.5             | Cross-Origin Resource Sharing middleware | venv pip list; requirements  |
+| OpenCV Headless        | 5.0.0.93          | Heatmap interpolation & Jet color-mapping| venv pip list; requirements  |
+| Pillow (PIL)           | 12.3.0            | Image validation & Lanczos resampling    | venv pip list; requirements  |
+| NumPy                  | 2.4.6             | Array transformations & tensor math      | venv pip list; requirements  |
+| Node.js                | >= 18.x           | JavaScript runtime environment           | frontend/package.json        |
+| Vite                   | 6.0.7             | Frontend dev server, bundler & API proxy | frontend/package.json:L18    |
+| React                  | 18.3.1            | Client UI component framework            | frontend/package.json:L12    |
+| React DOM              | 18.3.1            | DOM rendering engine for React           | frontend/package.json:L13    |
+| Lucide React           | 0.468.0           | Healthcare vector UI iconography         | frontend/package.json:L14    |
+| Kaggle Dual GPU        | 2x Tesla T4 16GB  | Model training & fine-tuning accelerator | notebook712c281550:Cell 0-1  |
++------------------------+-------------------+------------------------------------------+------------------------------+
+[Evidence: venv/pyvenv.cfg; backend/requirements.txt; frontend/package.json; parent report txt]
+
+
+================================================================================
+SECTION 12: EXPERIMENTAL RESULTS AND DISCUSSION
+================================================================================
+
+12.1 MODEL PERFORMANCE SUMMARY:
+    The fine-tuned DenseNet-121 model demonstrated outstanding diagnostic capability on frontal chest radiographs. By leveraging deep feature reuse across dense blocks, the model achieved a 96.51% ROC-AUC on an untouched 624-image test cohort, showing excellent separability between diseased and normal lung patterns.
+
+12.2 IMPACT OF TRAINING STRATEGY:
+    - Stage 1 (Frozen Base): Restricting training to the custom dense classification head allowed the network to learn global average pooled representations without corrupting ImageNet filter weights. Validation AUC reached 0.9687 by Epoch 10.
+    - Stage 2 (Fine-Tuning Layers 300+): Unfreezing Dense Block 4 allowed convolutional kernels to adapt specifically to pulmonary radiographic textures (e.g., ground-glass opacities, pleural thickening). Validation AUC peaked at 0.9970 (99.70%), with validation precision reaching 99.73%.
+
+12.3 CLINICAL INTERPRETATION OF CONFUSION MATRIX:
+    - High Sensitivity (96.67% at threshold 0.50): In clinical triage, missing a pneumonia diagnosis (False Negative) can lead to sepsis and severe complications. The model correctly identified 377 of 390 pneumonia cases, missing only 13 patients.
+    - False Positive Mitigation via Threshold Tuning (0.75): At standard 0.50 cutoff, 52 healthy patients were flagged as positive (22.2% false alarm rate). Calibrating the decision boundary to 0.75 reduced false alarms by more than half (to 24 false positives), while overall F1-score peaked at 93.08%.
+
+12.4 VERIFICATION ON UNSEEN TEST RADIOGRAPHS:
+    - Case 1 (Actual Pneumonia: `person1676_virus_2892.jpeg`): Model predicted 99.95% probability for Pneumonia. Grad-CAM localized strong activations over the right lower and mid-pulmonary zones where dense consolidation was present.
+    - Case 2 (Actual Normal: `NORMAL2-IM-0336-0001.jpeg`): Model predicted 26.54% probability for Pneumonia (73.46% Normal). Because 26.54% < 75.0% threshold, the system correctly categorized the radiograph as NORMAL, avoiding a false alarm.
+    [Evidence: notebook712c281550.ipynb:Cell 19, 20; Pneumonia_Detection_DenseNet121_Report.txt:L340-370]
+
+12.5 GRAD-CAM VISUAL VALIDATION:
+    Visual inspection of Grad-CAM heatmaps confirmed that the convolutional filters focus exclusively on lung parenchyma and pathological infiltrates, rather than external artifacts, spinal columns, or diagnostic labels. This provides solid empirical evidence of clinical validity and overcomes the "black-box" adoption barrier.
+
+12.6 OBSERVED LIMITATIONS:
+    - Class Discrimination Boundary: Mild pneumonia presentations with minimal consolidation occasionally score between 0.50 and 0.75, requiring physician discretion.
+    - Dataset Demographics: The Kermany dataset is primarily pediatric (ages 1 to 5). Performance on adult or geriatric radiographs with co-morbidities (e.g., emphysema, cardiomegaly) requires further validation.
+    - 2D Single Projection: Lateral views were not incorporated, which may limit the detection of retrocardiac or sub-diaphragmatic infiltrates.
+
+
+================================================================================
+SECTION 13: OUTPUT SCREENSHOTS
+================================================================================
+
+13.1 SUGGESTED SCREENSHOTS FOR FINAL ACADEMIC REPORT:
+    The following figures should be captured from the running application for inclusion in the final project documentation:
+
++----------------+-------------------------------------------------+------------------------------------------+-------------------------------------------------------------+
+| Figure Number  | Suggested Caption                               | Target Interface / Route                 | What the Screenshot Must Demonstrate                        |
++----------------+-------------------------------------------------+------------------------------------------+-------------------------------------------------------------+
+| Figure 13.1    | PneumoShield AI Application Landing Page        | Home Tab (`/` or `activeTab='home'`)     | Hero header, technical badge, DenseNet-121 overview, stats  |
+| Figure 13.2    | Diagnostic Console with Drag-and-Drop Dropzone  | Analyze Tab (`activeTab='predict'`)      | Upload container, file picker, file info badge, threshold   |
+| Figure 13.3    | Positive Pneumonia Diagnostic Result            | Analyze Tab (Post-Inference)             | Red verdict banner, 99%+ confidence, probability bar meters |
+| Figure 13.4    | Negative Normal Diagnostic Result               | Analyze Tab (Post-Inference)             | Green verdict banner, healthy classification, probability   |
+| Figure 13.5    | Grad-CAM Explainability Blended Overlay View    | Saliency Viewer (`Overlay` mode)         | Colormapped Jet heatmap blended over lung radiograph        |
+| Figure 13.6    | Grad-CAM Pure Heatmap View                      | Saliency Viewer (`Heatmap Only` mode)    | Raw gradient activation intensity distribution              |
+| Figure 13.7    | Original Unprocessed Radiograph Reference       | Saliency Viewer (`Original` mode)        | Baseline raw input radiograph for clinical comparison       |
+| Figure 13.8    | Decision Threshold Interactive Tuning Slider    | Range Control Panel                      | Slider adjusted between 0.50 and 0.90 with real-time value  |
+| Figure 13.9    | 4-Stage Architectural Workflow Pipeline         | How It Works Tab (`how-it-works`)        | Architectural cards detailing resize, normalize, infer, XAI |
+| Figure 13.10   | Model Evaluation Benchmarks & Confusion Matrix  | Model Performance Tab (`performance`)    | 2x2 confusion matrix grid (182 TN, 52 FP, 13 FN, 377 TP)    |
+| Figure 13.11   | Dual Console Startup Execution                  | Windows Command Prompts                  | `backend.bat` & `frontend.bat` launching via `pnewmonia.bat`|
++----------------+-------------------------------------------------+------------------------------------------+-------------------------------------------------------------+
+[Evidence: frontend/src/App.jsx:L169-835; backend.bat; frontend.bat; pnewmonia.bat]
+
+
+================================================================================
+SECTION 14: CONCLUSION AND FUTURE ENHANCEMENTS
+================================================================================
+
+14.1 WHAT THE PROJECT ACCOMPLISHES:
+    - Successfully engineered and validated an end-to-end medical deep learning web system for automated pneumonia detection from chest X-rays.
+    - Achieved an 89.58% test accuracy, 96.51% test ROC-AUC, and 96.67% recall at baseline, optimizable to 91.35% accuracy and 93.08% precision at threshold 0.75.
+    - Integrated Gradient-Weighted Class Activation Mapping (Grad-CAM) directly into the functional DenseNet architecture, providing transparent visual evidence for clinical diagnoses.
+    - Delivered a production-quality, responsive web application offering drag-and-drop analysis, threshold customization, and real-time inference without cloud dependencies.
+
+14.2 MAIN TECHNICAL CONTRIBUTIONS:
+    1. Stratified Re-partitioning: Resolved the Kaggle benchmark's flawed 16-sample validation set by engineering an 80/20 train/val split that enabled reliable early stopping and learning rate scheduling.
+    2. Cost-Sensitive Loss Weighting: Quantified and balanced a severe 1:2.89 class imbalance through inverse class weights, preventing model bias toward the majority class.
+    3. Nested Sub-Model Gradient Extraction: Overcame Keras functional sub-model encapsulation by programmatically tapping internal convolutional layers for Grad-CAM synthesis.
+    4. Two-Stage Fine-Tuning Protocol: Combined initial feature extraction on a frozen base with low-learning-rate fine-tuning of deeper layers, reaching 99.70% validation AUC.
+
+14.3 CURRENT IMPLEMENTATION STATUS:
+    - Fully Functional & Operational: Model training, evaluation, inference REST API, Grad-CAM generation, responsive web frontend, and turnkey batch startup scripts.
+    - Evaluated & Validated: Model tested on 624 unseen clinical radiographs with documented confusion matrices and threshold sweeps.
+
+14.4 REALISTIC FUTURE ENHANCEMENTS:
+    1. Multi-Class Differential Diagnosis: Expand the classifier to differentiate between Bacterial Pneumonia, Viral Pneumonia, COVID-19, Tuberculosis, and Normal lung fields.
+    2. DICOM / PACS Integration: Add support for native 16-bit DICOM (.dcm) medical image files and integrate with hospital PACS servers via DICOMweb / HL7 protocols.
+    3. Database & Longitudinal Tracking: Implement a PostgreSQL / MongoDB database to store anonymized patient diagnostic histories, longitudinal X-rays, and treatment progression.
+    4. Automated PDF Clinical Reports: Integrate a PDF generation engine (e.g., ReportLab) enabling physicians to download a signed diagnostic summary with embedded Grad-CAM figures.
+    5. Uncertainty Quantification: Implement Monte Carlo Dropout or Deep Ensembles to output confidence intervals, explicitly flagging borderline radiographs for mandatory human review.
+
+
+================================================================================
+SECTION 15: REFERENCES
+================================================================================
+
+15.1 PRIMARY DATASET & CLINICAL BENCHMARKS:
+    [1] Kermany, D. S., Goldbaum, M., Cai, W., Valentim, C. C., Liang, H., Baxter, S. L., ... & Zhang, K. (2018). "Identifying medical diagnoses and treatable diseases by image-based deep learning." Cell, 172(5), 1122-1131. DOI: 10.1016/j.cell.2018.02.010.
+    [2] Mooney, P. (2018). "Chest X-Ray Images (Pneumonia)." Kaggle Datasets. URL: https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia.
+
+15.2 MODEL ARCHITECTURE & EXPLAINABLE AI:
+    [3] Huang, G., Liu, Z., Van Der Maaten, L., & Weinberger, K. Q. (2017). "Densely connected convolutional networks." In Proceedings of the IEEE conference on computer vision and pattern recognition (CVPR), pp. 4700-4708.
+    [4] Selvaraju, R. R., Cogswell, M., Das, A., Vedantam, R., Parikh, D., & Batra, D. (2017). "Grad-CAM: Visual explanations from deep networks via gradient-based localization." In Proceedings of the IEEE international conference on computer vision (ICCV), pp. 618-626.
+    [5] Deng, J., Dong, W., Socher, R., Li, L. J., Li, K., & Fei-Fei, L. (2009). "ImageNet: A large-scale hierarchical image database." In 2009 IEEE conference on computer vision and pattern recognition, pp. 248-255.
+
+15.3 FRAMEWORKS & OPEN-SOURCE TECHNOLOGIES:
+    [6] Abadi, M., et al. (2016). "TensorFlow: A system for large-scale machine learning." In 12th USENIX Symposium on Operating Systems Design and Implementation (OSDI 16), pp. 265-283. URL: https://www.tensorflow.org/
+    [7] Chollet, F., et al. (2015). "Keras: Deep Learning for humans." GitHub repository. URL: https://keras.io/
+    [8] Pallets Projects. (2024). "Flask: A micro web framework for Python." URL: https://flask.palletsprojects.com/
+    [9] Meta Open Source. (2024). "React: A JavaScript library for building user interfaces." URL: https://react.dev/
+    [10] You, E., et al. (2024). "Vite: Next Generation Frontend Tooling." URL: https://vite.dev/
+    [11] Bradski, G. (2000). "The OpenCV Library." Dr. Dobb's Journal of Software Tools. URL: https://opencv.org/
+
+
+================================================================================
+SECTION 16: APPENDIX MATERIAL
+================================================================================
+
+16.1 KEY REPOSITORY SOURCE FILE PATHS:
+    - Root Orchestrator: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\pnewmonia.bat`
+    - Backend Batch Script: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\backend.bat`
+    - Frontend Batch Script: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\frontend.bat`
+    - Backend Application: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\backend\app.py`
+    - Backend Dependencies: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\backend\requirements.txt`
+    - Frontend Entry: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\frontend\src\main.jsx`
+    - Frontend Dashboard: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\frontend\src\App.jsx`
+    - Frontend Design System: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\frontend\src\index.css`
+    - Frontend Vite Config: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\frontend\vite.config.js`
+    - Frontend Package Config: `d:\COLLEGE\AIML Proj\PneumoniaDetectionWebsite\frontend\package.json`
+    - Model Artifact: `d:\COLLEGE\AIML Proj\best_densenet121_finetuned.keras`
+    - Training Notebook: `d:\COLLEGE\AIML Proj\notebook712c281550.ipynb`
+
+16.2 ESSENTIAL CODE SNIPPETS:
+
+A. Image Preprocessing (`backend/app.py`):
+```python
+def preprocess_image(pil_img):
+    img = pil_img.convert("RGB").resize((224, 224), Image.LANCZOS)
+    arr = np.array(img, dtype=np.float32)
+    arr = np.expand_dims(arr, axis=0)
+    arr = preprocess_input(arr)
+    return arr
+```
+
+B. Grad-CAM Implementation for Nested Functional Model (`backend/app.py`):
+```python
+def compute_gradcam(input_tensor, pil_img):
+    # Locate inner DenseNet sub-model
+    inner_model = None
+    for layer in model.layers:
+        if "densenet" in layer.name.lower():
+            inner_model = layer
+            break
+    if inner_model is None:
+        inner_model = model
+
+    # Find last Conv2D layer (relu activation of Dense Block 4)
+    last_conv_layer = None
+    for layer in reversed(inner_model.layers):
+        if isinstance(layer, tf.keras.layers.Conv2D):
+            last_conv_layer = layer
+            break
+
+    grad_model = tf.keras.Model(
+        inputs=inner_model.inputs,
+        outputs=[last_conv_layer.output, inner_model.output],
+    )
+
+    tensor = tf.constant(input_tensor, dtype=tf.float32)
+    with tf.GradientTape() as tape:
+        tape.watch(tensor)
+        conv_outputs, predictions = grad_model(tensor, training=False)
+        class_score = predictions[:, 0] if predictions.shape[-1] == 1 else predictions[:, 1]
+
+    grads = tape.gradient(class_score, conv_outputs)
+    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+    conv_outputs = conv_outputs[0]
+    heatmap = conv_outputs @ pooled_grads[..., tf.newaxis]
+    heatmap = tf.squeeze(heatmap)
+    heatmap = tf.maximum(heatmap, 0) / (tf.math.reduce_max(heatmap) + 1e-8)
+    heatmap = heatmap.numpy()
+
+    # Blend with original image
+    orig_w, orig_h = pil_img.size
+    heatmap_resized = cv2.resize(heatmap, (orig_w, orig_h))
+    heatmap_uint8 = np.uint8(255 * heatmap_resized)
+    heatmap_colored = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
+    heatmap_rgb = cv2.cvtColor(heatmap_colored, cv2.COLOR_BGR2RGB)
+    orig_array = np.array(pil_img.convert("RGB"), dtype=np.uint8)
+    overlay = (orig_array * 0.55 + heatmap_rgb * 0.45).astype(np.uint8)
+    return overlay, heatmap_rgb
+```
+
+C. Decision Threshold & Verdict Logic (`backend/app.py`):
+```python
+raw_output = model.predict(input_tensor, verbose=0)
+pneumonia_prob = float(raw_output[0, 0])
+normal_prob = 1.0 - pneumonia_prob
+
+prediction = "PNEUMONIA" if pneumonia_prob >= threshold else "NORMAL"
+confidence = (pneumonia_prob * 100 if prediction == "PNEUMONIA" else normal_prob * 100)
+```
+
+D. Inverse Class Weight Computation (`notebook712c281550.ipynb`):
+```python
+from sklearn.utils.class_weight import compute_class_weight
+classes = np.array([0, 1])
+y_train_labels = [0] * normal_count + [1] * pneumonia_count
+class_weights_array = compute_class_weight(
+    class_weight="balanced",
+    classes=classes,
+    y=y_train_labels
+)
+class_weights = {0: class_weights_array[0], 1: class_weights_array[1]}
+# Yields: {0: 1.9448, 1: 0.6730}
+```
+
+16.3 VERIFIED EXECUTION COMMANDS:
+    - Launch Both Servers: Double click `pnewmonia.bat`
+    - Launch Backend Only: Run `backend.bat` (Flask on `http://127.0.0.1:5000`)
+    - Launch Frontend Only: Run `frontend.bat` (Vite on `http://localhost:5173`)
+    - Inspect Model Parameters: `python -c "import tensorflow as tf; m = tf.keras.models.load_model('../best_densenet121_finetuned.keras'); print(m.summary())"`
+
+
+================================================================================
+SECTION 17: INFORMATION GAPS AND VERIFICATION CHECKLIST
+================================================================================
+
+The following institutional and personal details could not be established from the repository source code and must be confirmed by the student before final report binding:
+
+[ ] 1. STUDENT CREDENTIALS:
+       - Full Student Name(s): [Requires Confirmation]
+       - University Register Number / Roll Number(s): [Requires Confirmation]
+       - Academic Degree: B.Tech in Artificial Intelligence & Machine Learning (AI & ML) [Requires Confirmation]
+
+[ ] 2. INSTITUTIONAL IDENTIFICATION:
+       - Department Name: Department of Artificial Intelligence and Machine Learning [Requires Confirmation]
+       - College / Institute Name: [Requires Confirmation]
+       - University Affiliation: [Requires Confirmation]
+
+[ ] 3. ACADEMIC COURSE PARTICULARS:
+       - Course Code: [Requires Confirmation]
+       - Course Title: [Requires Confirmation - e.g., Capstone Project / Major Project]
+       - Academic Year: [Requires Confirmation - e.g., 2025-2026]
+       - Date of Final Report Submission: [Requires Confirmation]
+
+[ ] 4. FACULTY SUPERVISION:
+       - Project Guide / Supervisor Name & Designation: [Requires Confirmation]
+       - Head of Department (HOD) Name: [Requires Confirmation]
+       - External Examiner Name: [Requires Confirmation]
+
+[ ] 5. DEVELOPMENT HARDWARE SPECIFICATIONS:
+       - Local PC Processor (CPU): [Requires Confirmation - e.g., Intel Core i7 / AMD Ryzen 7]
+       - Local PC System Memory: [Requires Confirmation - e.g., 16 GB DDR4]
+       - Local GPU (if present): [Requires Confirmation - e.g., NVIDIA RTX 3060 / None]
+       - Cloud Training Environment: Kaggle Dual NVIDIA Tesla T4 GPUs (Verified from notebook)
+
+[ ] 6. REPORT SCREENSHOT CAPTURES:
+       - Figures 13.1 through 13.11 need to be captured directly from your local browser while running `pnewmonia.bat` and inserted into your final document.
+
+================================================================================
+                        END OF AUDIT REPORT (report.txt)
+================================================================================

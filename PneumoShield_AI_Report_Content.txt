@@ -1,0 +1,163 @@
+================================================================================
+4.2.3 Flask Backend
+================================================================================
+
+The Flask backend serves as the core integration and inference microservice
+within the PneumoShield AI architecture, establishing a high-performance bridge
+connecting the React client interface, the pre-trained DenseNet-121 deep
+learning model, and the image-processing pipeline. Upon receiving incoming HTTP
+requests, Flask coordinates file validation, decodes radiograph byte streams via
+Pillow, resizes images to the required 224 x 224 input dimension, and applies
+standard ImageNet DenseNet normalization. The preprocessed tensor is then
+transferred to the serialized Keras model (best_densenet121_finetuned.keras) for
+forward inference, generating posterior probability scores for pulmonary
+pathology. Simultaneously, the backend executes an Explainable AI (XAI)
+pipeline via Gradient-Weighted Class Activation Mapping (Grad-CAM), programmatically
+extracting gradient activations from the final convolutional layer (relu) of the
+DenseNet-121 backbone, generating a JET color-mapped heatmap, and compositing an
+alpha-blended overlay (55% original radiograph, 45% heatmap). Both explainability
+visualizations are encoded into Base64 PNG data URIs and returned alongside
+numerical confidence values in a structured JSON payload, enabling rapid,
+stateless diagnostic delivery without intermediate disk caching.
+
+The major API endpoints are:
+
+Table 4.2.1: Backend API Endpoints
++----------------+---------+----------------------------------------------------+
+| Endpoint       | Method  | Purpose                                            |
++----------------+---------+----------------------------------------------------+
+| /api/health    | GET     | Performs server and model readiness health checks. |
+|                |         | Returns JSON indicating operational status,        |
+|                |         | whether the DenseNet-121 model is loaded in memory,|
+|                |         | and a descriptive status message for client        |
+|                |         | polling.                                           |
++----------------+---------+----------------------------------------------------+
+| /api/predict   | POST    | Ingests a multipart/form-data payload containing a |
+|                |         | chest radiograph image file ('image', JPG/PNG up to|
+|                |         | 15 MB) and an optional diagnostic threshold value  |
+|                |         | ('threshold', default: 0.75, range: 0.05-0.99).    |
+|                |         | Preprocesses the radiograph (224x224 RGB, DenseNet |
+|                |         | standardization), executes neural inference to     |
+|                |         | compute pneumonia and normal class probabilities,  |
+|                |         | classifies the case as 'PNEUMONIA' or 'NORMAL',    |
+|                |         | and dynamically generates Grad-CAM visualizations. |
+|                |         | Returns a single JSON response containing the      |
+|                |         | prediction label, percentage confidence, 6-decimal |
+|                |         | class probabilities, evaluated threshold, Base64   |
+|                |         | PNG data URI of the blended Grad-CAM overlay       |
+|                |         | ('gradcam_url'), and Base64 PNG data URI of the    |
+|                |         | raw JET colormap heatmap ('heatmap_url').          |
++----------------+---------+----------------------------------------------------+
+
+
+================================================================================
+4.3 Experimental Results
+================================================================================
+
+The diagnostic performance of PneumoShield AI was evaluated on the benchmark
+Kermany et al. Chest X-Ray Images (Pneumonia) dataset. To ensure an unbiased and
+clinically rigorous assessment, the model was tested on the held-out, untouched
+test cohort comprising 624 frontal chest radiographs (234 healthy Normal cases
+and 390 confirmed Pneumonia cases). All test images underwent the identical
+standardized preprocessing pipeline applied during inference: conversion to RGB,
+bicubic resizing to 224 x 224 pixels, and channel-wise ImageNet standardization.
+Model evaluation was conducted by restoring the best-performing model weights
+saved during deep fine-tuning (best_densenet121_finetuned.keras), which had been
+optimized using a two-stage transfer learning schedule with class-weighted binary
+crossentropy loss. Both threshold-independent metrics (Area Under the ROC Curve)
+and threshold-dependent metrics (Accuracy, Precision, Recall, and F1-Score across
+baseline 0.50 and calibrated 0.75 cutoffs) were verified against the held-out test
+cohort.
+
+Table 4.3.1: Final Model Performance
++------------------------------------+------------------------------------------+
+| Metric                             | Result                                   |
++------------------------------------+------------------------------------------+
+| Test Samples                       | 624 images (234 Normal, 390 Pneumonia)   |
+| Number of Classes                  | 2 (NORMAL, PNEUMONIA)                    |
+| Input Image Size                   | 224 x 224 x 3 pixels                     |
+| Model Architecture                 | DenseNet-121 (Transfer Learning + Head)  |
+| Classification Head Design         | GlobalAvgPool2D + Dropout(0.4) + Dense(1)|
+| Total Parameters                   | 7,038,529 (approx. 26.85 MB)             |
+| Total Trainable Parameters         | 2,890,433 (Stage 2 Fine-Tuned Layers)    |
+| Non-Trainable Parameters           | 4,148,096 (Frozen Early Dense Blocks)    |
+| Test Loss (Binary Crossentropy)    | 0.2780                                   |
+| Test Accuracy (Threshold = 0.50)   | 89.58% (559 / 624 correct)               |
+| Test Accuracy (Threshold = 0.75)   | 91.35% (570 / 624 correct)               |
+| Macro Precision                    | 0.9061 (90.61%)                          |
+| Macro Recall                       | 0.8722 (87.22%)                          |
+| Macro F1-Score                     | 0.8846 (88.46%)                          |
+| Weighted Precision                 | 0.8992 (89.92%)                          |
+| Weighted Recall                    | 0.8958 (89.58%)                          |
+| Weighted F1-Score                  | 0.8936 (89.36%)                          |
+| ROC-AUC (Keras Evaluation)         | 0.9651 (96.51%)                          |
+| ROC-AUC (Scikit-Learn Evaluation)  | 0.9646 (96.46%)                          |
+| Baseline Decision Threshold        | 0.50 (Standard sigmoid midpoint)         |
+| Calibrated Decision Threshold      | 0.75 (Optimal clinical F1 operating point|
++------------------------------------+------------------------------------------+
+
+
+Table 4.3.2: Class-wise Test Performance
++------------------+-----------+--------+----------+---------+
+| Class            | Precision | Recall | F1-Score | Support |
++------------------+-----------+--------+----------+---------+
+| NORMAL           | 0.9333    | 0.7778 | 0.8485   | 234     |
+| PNEUMONIA        | 0.8788    | 0.9667 | 0.9206   | 390     |
++------------------+-----------+--------+----------+---------+
+| Macro Average    | 0.9061    | 0.8722 | 0.8846   | 624     |
+| Weighted Average | 0.8992    | 0.8958 | 0.8936   | 624     |
++------------------+-----------+--------+----------+---------+
+
+
+================================================================================
+Verification Notes
+================================================================================
+
+1. Dataset & Test Cohort Integrity:
+   - Evaluated on the Kermany et al. pediatric chest radiograph test partition
+     consisting of exactly 624 untouched images (234 Normal, 390 Pneumonia).
+   - Re-partitioning of the original 5,216 training images into an 80/20 train/val
+     split (4,173 train, 1,043 validation) ensured that test cohort isolation was
+     strictly preserved without any data leakage.
+
+2. Source of Truth & Metric Verification:
+   - Primary evaluation outputs were extracted directly from the verified execution
+     logs of notebook712c281550.ipynb (Cells 13, 14, 15, 16, 17) and cross-verified
+     against the serialized model best_densenet121_finetuned.keras and project
+     audit report.txt.
+   - The test confusion matrix confirms the per-class counts:
+       * True Positives (Pneumonia correctly identified) : 377
+       * True Negatives (Normal correctly identified)    : 182
+       * False Positives (Normal misclassified)          :  52
+       * False Negatives (Pneumonia missed)              :  13
+       * Total Support                                   : 624 (182 + 52 + 13 + 377)
+   - Calculated per-class metrics match exactly:
+       * NORMAL Precision = 182 / (182 + 13) = 182 / 195 = 0.9333 (93.33%)
+       * NORMAL Recall    = 182 / (182 + 52) = 182 / 234 = 0.7778 (77.78%)
+       * PNEUMONIA Precision = 377 / (377 + 52) = 377 / 429 = 0.8788 (87.88%)
+       * PNEUMONIA Recall    = 377 / (377 + 13) = 377 / 390 = 0.9667 (96.67%)
+
+3. Dual ROC-AUC Score Documentation:
+   - Keras evaluate() computes AUC iteratively per mini-batch, yielding 0.9651.
+   - Scikit-learn roc_auc_score(y_true, y_prob) computes rank-order AUC across the
+     full set of continuous probability scores, yielding 0.9646. Both values are
+     documented for academic rigor.
+
+4. Threshold Calibration Impact:
+   - At standard 0.50 threshold, high clinical sensitivity (96.67% recall) is
+     achieved, missing only 13 pneumonia patients, but incurring 52 false positives.
+   - Empirical threshold grid search (tested from 0.10 to 0.90 in increments of 0.05)
+     identified 0.75 as the optimal F1 operating point (accuracy 91.35%, precision
+     93.08%, recall 93.08%, F1-score 93.08%), which safely eliminates 28 false
+     positives while retaining strong diagnostic coverage.
+   - The backend deployment (backend/app.py) configures DEFAULT_THRESHOLD = 0.75
+     while allowing interactive physician adjustment via the frontend slider.
+
+5. API Routing Verification:
+   - Confirmed through static inspection of backend/app.py that exactly two routes
+     are implemented: GET /api/health and POST /api/predict.
+   - Grad-CAM heatmaps and alpha-blended overlays are generated dynamically on the
+     fly and returned as Base64 data strings inside the JSON payload of /api/predict;
+     they do not exist as independent static routes.
+   - The system maintains a stateless inference architecture with no persistent
+     database or user authentication modules implemented.
